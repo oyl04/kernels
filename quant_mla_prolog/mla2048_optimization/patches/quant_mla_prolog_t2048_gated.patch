@@ -1,0 +1,477 @@
+--- a/samples/quant_mla_prolog/quant_mla_prolog.py
++++ b/samples/quant_mla_prolog/quant_mla_prolog.py
+@@ -2711,6 +2711,430 @@
+         )
+ 
+ 
++class _MlaQHeadTokenEpilogMxfp8UnitT2048:
++    """Eight-row combined Q per-token-head E4M3 quantization."""
++
++    def __init__(self, workers, padded_t, logical_t, token_major_rope=False):
++        self.workers = workers
++        self.padded_t = padded_t
++        self.logical_t = logical_t
++        self.token_major_rope = token_major_rope
++        self.rows = 16
++        self.nope_channel = Channel(MemLoc.UB, (16, KV_LORA), dtypes.bfloat16, depth=2)
++        self.rope_channel = Channel(MemLoc.UB, (16, ROPE), dtypes.bfloat16, depth=2)
++        self.output_channel = Channel(MemLoc.UB, (16, FEATURES), Float8E4M3FN, depth=2)
++        self.scale_channel = Channel(MemLoc.UB, (16, 1), dtypes.float32, depth=2)
++
++    @jit
++    def __call__(
++        self, q_nope: Tensor, q_combined: Tensor, q_out: Tensor, descale_q: Tensor
++    ):
++        nope = q_nope.view((N_HEADS * self.padded_t, KV_LORA))
++        combined = q_combined.view((N_HEADS * self.padded_t, HEAD_DIM))
++        output = q_out.view((self.logical_t, N_HEADS * FEATURES))
++        scales = descale_q.view((self.logical_t, N_HEADS))
++        total_batches = (N_HEADS * self.logical_t) // 16
++        chunk = (total_batches + self.workers - 1) // self.workers
++        start = get_block_idx() * chunk
++        end = start + chunk
++        if end > total_batches:
++            end = total_batches
++        for batch in range(start, end):
++            self.process_batch(nope, combined, output, scales, batch)
++
++    @jit
++    def process_batch(self, q_nope, q_rope, q_out, descale_q, batch):
++        nope_slot = self.nope_channel.produce()
++        rope_slot = self.rope_channel.produce()
++        head = batch // (self.logical_t // 16)
++        token_batch = batch % (self.logical_t // 16)
++        source_batch = head * (self.padded_t // 16) + token_batch
++        mem_copy(nope_slot, tile_slice(q_nope, (16, KV_LORA), (source_batch, 0)))
++        if self.token_major_rope:
++            token_start = token_batch * 16
++            rope_col_start = head * HEAD_DIM + QK_NOPE
++            # fmt: off
++            mem_copy(
++                rope_slot,
++                q_rope[
++                    token_start:token_start + 16,
++                    rope_col_start:rope_col_start + ROPE,
++                ],
++            )
++            # fmt: on
++        else:
++            mem_copy(
++                rope_slot,
++                tile_slice(
++                    q_rope,
++                    (16, ROPE),
++                    (source_batch, QK_NOPE // ROPE),
++                ),
++            )
++        q_nope_rows = self.nope_channel.consume()
++        q_rope_rows = self.rope_channel.consume()
++        encoded = self.output_channel.produce()
++        scales = self.scale_channel.produce()
++        with vf(mode="simd"):
++            vmem_bar(mode="vst_vld")
++            full = full_mask()
++            scalar = update_mask(1, elem_bits=32)[0]
++            for row in range_constexpr(16):
++                lane_max = vdups(1.0e-8, dtypes.float32, mask=full)
++                for segment in range_constexpr(KV_LORA // 64):
++                    unpacked = vload_unpack(
++                        q_nope_rows,
++                        row * KV_LORA + segment * 64,
++                        unpack_mode=UnpackMode.B16_TO_B32,
++                    )
++                    value = vcast(unpacked, dtypes.float32, mask=full)
++                    lane_max = vmax(lane_max, vabs(value, mask=full), mask=full)
++                unpacked = vload_unpack(
++                    q_rope_rows,
++                    row * ROPE,
++                    unpack_mode=UnpackMode.B16_TO_B32,
++                )
++                value = vcast(unpacked, dtypes.float32, mask=full)
++                lane_max = vmax(lane_max, vabs(value, mask=full), mask=full)
++                absmax = vreduce_max(lane_max, mask=full)
++                scale = vmuls(absmax, 1.0 / FP8_MAX, mask=scalar)
++                vstore_first(scales, row, scale)
++                scale_vector = vdup(scale, mask=full)
++                for segment in range_constexpr(KV_LORA // 64):
++                    unpacked = vload_unpack(
++                        q_nope_rows,
++                        row * KV_LORA + segment * 64,
++                        unpack_mode=UnpackMode.B16_TO_B32,
++                    )
++                    value = vcast(unpacked, dtypes.float32, mask=full)
++                    quantized = vdiv(value, scale_vector, mask=full)
++                    fp8_value = vcast(
++                        quantized,
++                        dtypes.float8_e4m3fn,
++                        mask=full,
++                        reg_layout=RegLayout.ZERO,
++                    )
++                    vstore_pack(
++                        encoded,
++                        row * FEATURES + segment * 64,
++                        fp8_value,
++                        full,
++                        pack_mode=PackMode.B32_TO_B8,
++                    )
++                unpacked = vload_unpack(
++                    q_rope_rows,
++                    row * ROPE,
++                    unpack_mode=UnpackMode.B16_TO_B32,
++                )
++                value = vcast(unpacked, dtypes.float32, mask=full)
++                quantized = vdiv(value, scale_vector, mask=full)
++                fp8_value = vcast(
++                    quantized,
++                    dtypes.float8_e4m3fn,
++                    mask=full,
++                    reg_layout=RegLayout.ZERO,
++                )
++                vstore_pack(
++                    encoded,
++                    row * FEATURES + KV_LORA,
++                    fp8_value,
++                    full,
++                    pack_mode=PackMode.B32_TO_B8,
++                )
++        output_rows = self.output_channel.consume()
++        output_scales = self.scale_channel.consume()
++        mem_copy(tile_slice(q_out, (16, FEATURES), (token_batch, head)), output_rows)
++        mem_copy(tile_slice(descale_q, (16, 1), (token_batch, head)), output_scales)
++
++
++class _O11MlaWkbTokenMajorLargeUnitT2048:
++    """Read one head's NOPE prefix from token-major QcQr workspace."""
++
++    def __init__(self, cdepth=1, bdepth=1, early=False):
++        self.early = early
++        self.cdepth = cdepth
++        self.bm = 64
++        self.a_l1 = Channel(
++            MemLoc.L1, (self.bm, QK_NOPE), dtypes.bfloat16, depth=2, data_format="nz"
++        )
++        self.b_l1 = Channel(
++            MemLoc.L1, (QK_NOPE, KV_LORA), dtypes.bfloat16, depth=1, data_format="nz"
++        )
++        self.a_l0 = Channel(MemLoc.L0A, (self.bm, QK_NOPE), dtypes.bfloat16, depth=2)
++        self.b_l0 = Channel(MemLoc.L0B, (QK_NOPE, 128), dtypes.bfloat16, depth=bdepth)
++        self.c_l0 = Channel(
++            MemLoc.L0C, (self.bm, 128), dtypes.float32, depth=self.cdepth
++        )
++        self.nd2nz = make_copy_engine(format_transform="nd2nz")
++        self.fixpipe = make_copy_engine()
++
++    @jit
++    def process_head(self, q_combined, wkb, q_latent, head, early_flag):
++        padded_m = q_combined.shape[0]
++        m_tiles = padded_m // self.bm
++        q_token_major = q_combined.view((padded_m, N_HEADS * HEAD_DIM))
++        q_col_start = head * HEAD_DIM
++        w_flat = wkb.view((N_HEADS * QK_NOPE, KV_LORA))
++        out_flat = q_latent.view((N_HEADS * padded_m, KV_LORA))
++        out_head = tile_slice(
++            out_flat, make_tiler((padded_m, KV_LORA), alignment=(128, 1)), (head, 0)
++        )
++        # For T<=64, two L1B slots let the next head's ND->NZ weight transfer
++        # run while the current head consumes its four N128 tiles on AIC.
++        # T=128 keeps one slot: the extra 128 KiB slot makes its resident
++        # M128 path slower through L1 pressure.
++        b_l1_write = self.b_l1.produce()
++        mem_copy(
++            b_l1_write,
++            tile_slice(w_flat, (QK_NOPE, KV_LORA), (head, 0)),
++            engine=self.nd2nz,
++        )
++        b_l1_read = self.b_l1.consume()
++        for m_tile in range(m_tiles):
++            m_start = m_tile * self.bm
++            a_l1_write = self.a_l1.produce()
++            # fmt: off
++            mem_copy(
++                a_l1_write,
++                q_token_major[
++                    m_start:m_start + self.bm,
++                    q_col_start:q_col_start + QK_NOPE,
++                ],
++                engine=self.nd2nz,
++            )
++            # fmt: on
++            a_l1_read = self.a_l1.consume()
++            # A is invariant across the four 128-column WKB tiles.  Keep one
++            # L0A slot live until every tile has consumed it instead of
++            # issuing the same L1 -> L0A transfer four times.
++            a_l0_write = self.a_l0.produce()
++            mem_copy(a_l0_write, a_l1_read)
++            a_l0_read = self.a_l0.consume()
++            for n_tile in range_constexpr(4):
++                b_l0_write = self.b_l0.produce()
++                mem_copy(
++                    b_l0_write,
++                    tile_slice(b_l1_read, (QK_NOPE, 128), (0, n_tile)),
++                    transpose=True,
++                )
++                c_l0_write = self.c_l0.produce()
++                matmul(c_l0_write, a_l0_read, self.b_l0.consume(), init=True)
++                mem_copy(
++                    tile_slice(out_head, (self.bm, 128), (m_tile, n_tile)),
++                    self.c_l0.consume(),
++                    engine=self.fixpipe,
++                )
++            if const_expr(self.early):
++                if get_block_num() == 32:
++                    if m_tile + 1 < m_tiles:
++                        if (m_tile + 1) % (m_tiles // 4) == 0:
++                            cube_sync_notify(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++                            cube_sync_wait(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++                            chunk = (m_tile + 1) // (m_tiles // 4) - 1
++                            cube_sync_block_arrive(_sync_ops.PIPE.MTE2, early_flag + 3 * chunk, mode=2)
++
++
++@kernel
++class _MlaRuntimePrefillKernelT2048:
++    """Dynamic prefill keeps all token blocks live through each pipeline phase."""
++
++    def __init__(self, norm_eps, quant_mode_c):
++        self.norm_eps, self.quant_mode_c = norm_eps, quant_mode_c
++        self.tail = _MlaInputTailUnit()
++        self.qa = _QaRmsMixUnit(norm_eps)
++
++    def __call__(
++        self,
++        qa_raw: Tensor,
++        kva_raw: Tensor,
++        x: Tensor,
++        wqa: Tensor,
++        wkva: Tensor,
++        sx: Tensor,
++        swqa: Tensor,
++        swkva: Tensor,
++        gamma_qa: Tensor,
++        wqb: Tensor,
++        swqb: Tensor,
++        wkb: Tensor,
++        gamma_kv: Tensor,
++        qscale_kv: Tensor,
++        cache: Tensor,
++        cache_index: Tensor,
++        qa_mx: Tensor,
++        qa_scale: Tensor,
++        q_head: Tensor,
++        q_latent_h: Tensor,
++        q_out: Tensor,
++        descale_q: Tensor,
++        x_pad: Tensor,
++        sx_pad: Tensor,
++    ):
++        block, cores, sub = get_block_idx(), get_block_num(), get_subblock_id()
++        valid, capacity = x.shape[0], x_pad.shape[0]
++        x_block, sx_block = x_pad, sx_pad
++        self.tail.pad(x, sx, x_pad, sx_pad, valid, capacity)
++        global_sync_all()
++        front = _O11MlaRef17FrontUnit(128)
++        for n in range(block, Q_LORA // 64, cores):
++            for m_idx in range(capacity // 128):
++                front.project_qa_owned_tile(
++                    qa_raw, x_block, wqa, sx_block, swqa, n, m_idx
++                )
++        _o11_front_sync_aic_to_aiv()
++        channel_rewind(reset_sync_id=True)
++        for n in range(block, FEATURES // 64, cores):
++            for m_idx in range(capacity // 128):
++                front.project_kva_tile(
++                    kva_raw, x_block, wkva, sx_block, swkva, n, m_idx
++                )
++        qa_token = block * 2 + sub
++        if qa_token < capacity:
++            gamma_write = self.qa.gamma.produce()
++            mem_copy(gamma_write, gamma_qa)
++            gamma = self.qa.gamma.consume()
++            for token in range(qa_token, capacity, 2 * cores):
++                self.qa.process_one(qa_raw, gamma, qa_mx, qa_scale, token)
++        _o11_front_sync_aic_to_aiv()
++        channel_rewind(reset_sync_id=True)
++        if const_expr(self.quant_mode_c == 1):
++            kv = _MlaKvEpilogMxfp8Unit(PA_BLOCK_SIZE, self.norm_eps, output_depth=2)
++            kv.process_assigned_rows(
++                kva_raw, gamma_kv, qscale_kv, cache, cache_index, block, cores
++            )
++        else:
++            kv = _MlaKvEpilogBf16Unit(PA_BLOCK_SIZE, self.norm_eps, output_depth=2)
++            kv.process_assigned_rows(
++                kva_raw, gamma_kv, cache, cache_index, block, cores
++            )
++        for m_idx in range(capacity // 128):
++            qb = _O11QbHeadOwnedMixT128(128, 32)
++            qb.projection_kernel(
++                tile_slice(q_head, (128, N_HEADS, HEAD_DIM), (m_idx, 0, 0)),
++                tile_slice(qa_mx.view(dtype=dtypes.int8), (128, Q_LORA), (m_idx, 0)),
++                wqb,
++                tile_slice(qa_scale, (128, Q_LORA // 64, 2), (m_idx, 0, 0)),
++                swqb,
++            )
++        cube_sync_all()
++        cube_sync_notify(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++        cube_sync_wait(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++        # Finish KV VECTOR/MTE3 accesses before Q reuses the same UB arena.
++        vec_sync_all()
++        channel_rewind(reset_sync_id=True)
++        if cores < 8:
++            vec_sync_block_wait(_sync_ops.PIPE.S, 3, mode=2)
++        if const_expr(self.quant_mode_c == 1):
++            epilog = _MlaQHeadTokenEpilogMxfp8UnitT2048(
++                64, capacity, capacity, token_major_rope=True
++            )
++            nope = q_latent_h.view((N_HEADS * capacity, KV_LORA))
++            rope = q_head.view((capacity, N_HEADS * HEAD_DIM))
++            out = q_out.view((capacity, N_HEADS * FEATURES))
++            for head in range(block, N_HEADS, cores):
++                if cores == 32:
++                    chunk_batches = capacity // 64
++                    for chunk in range(4):
++                        if chunk < 3:
++                            vec_sync_block_wait(_sync_ops.PIPE.S, 6 + head // cores + 3 * chunk, mode=2)
++                        else:
++                            vec_sync_block_wait(_sync_ops.PIPE.S, 3 + head // cores, mode=2)
++                        for token_batch in range(chunk * chunk_batches + sub, (chunk + 1) * chunk_batches, 2):
++                            epilog.process_batch(nope, rope, out, descale_q, head * (capacity // 16) + token_batch)
++                else:
++                    if cores >= 8:
++                        vec_sync_block_wait(_sync_ops.PIPE.S, 3 + head // cores, mode=2)
++                    for token_batch in range(sub, capacity // 16, 2):
++                        epilog.process_batch(
++                            nope, rope, out, descale_q, head * (capacity // 16) + token_batch
++                        )
++        else:
++            epilog_bf16 = _MlaQHeadTokenEpilogBf16Unit(8, capacity, capacity)
++            for head in range(block, N_HEADS, cores):
++                if cores >= 8:
++                    vec_sync_block_wait(_sync_ops.PIPE.S, 3 + head // cores, mode=2)
++                for token_batch in range(sub, capacity // 8, 2):
++                    epilog_bf16.process_batch(
++                        q_latent_h, q_head, q_out, head, token_batch
++                    )
++        vec_sync_all()
++        vec_sync_block_arrive(_sync_ops.PIPE.MTE3, 2, mode=2)
++        wkb_unit = _O11MlaWkbTokenMajorLargeUnitT2048(cdepth=2, bdepth=2, early=self.quant_mode_c == 1)
++        for head in range(block, N_HEADS, cores):
++            wkb_unit.process_head(q_head, wkb, q_latent_h, head, 6 + head // cores)
++            if cores >= 8:
++                cube_sync_notify(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++                cube_sync_wait(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++                cube_sync_block_arrive(_sync_ops.PIPE.MTE2, 3 + head // cores, mode=2)
++        if cores < 8:
++            cube_sync_notify(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++            cube_sync_wait(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
++            cube_sync_block_arrive(_sync_ops.PIPE.MTE2, 3, mode=2)
++        _sync_ops.cube_sync_block_wait(_sync_ops.PIPE.S, 2, mode=2)
++        global_sync_all()
++
++
++class _MlaRuntimePrefillLauncherT2048:
++    def __init__(self, norm_eps, quant_mode_c):
++        self.norm_eps, self.quant_mode_c = norm_eps, quant_mode_c
++
++    @host
++    def run(
++        self,
++        qa_raw,
++        kva_raw,
++        x,
++        wqa,
++        wkva,
++        sx,
++        swqa,
++        swkva,
++        gamma_qa,
++        wqb,
++        swqb,
++        wkb,
++        gamma_kv,
++        qscale_kv,
++        cache,
++        cache_index,
++        qa_mx,
++        qa_scale,
++        q_head,
++        q_latent_h,
++        q_out,
++        descale_q,
++        x_pad,
++        sx_pad,
++        core_num: int,
++    ):
++        _MlaRuntimePrefillKernelT2048(self.norm_eps, self.quant_mode_c)[core_num](
++            qa_raw,
++            kva_raw,
++            x,
++            wqa,
++            wkva,
++            sx,
++            swqa,
++            swkva,
++            gamma_qa,
++            wqb,
++            swqb,
++            wkb,
++            gamma_kv,
++            qscale_kv,
++            cache,
++            cache_index,
++            qa_mx,
++            qa_scale,
++            q_head,
++            q_latent_h,
++            q_out,
++            descale_q,
++            x_pad,
++            sx_pad,
++        )
++
++
+ class _O11Workspaces(NamedTuple):
+     x_pad: torch.Tensor
+     sx_pad: torch.Tensor
+@@ -2786,6 +3210,12 @@
+     if quant_mode_c == 0:
+         descale_q = gamma_kv[:1]
+     return q_out, descale_q
++
++
++def _runtime_prefill_profile(profile, tokens, quant_mode_c, core_num):
++    if profile == 0 and tokens == 2048 and quant_mode_c == 1 and core_num == 32:
++        return 2048
++    return profile
+ 
+ 
+ def _run_o11_single_launch(
+@@ -2822,7 +3252,8 @@
+         x, gamma_kv, output_m, quant_mode_c, output_tensors
+     )
+     core_num = _tensor_aic_core_num(x)
+-    program = _get_native_program(profile, quant_mode_c, float(norm_eps))
++    dispatch_profile = _runtime_prefill_profile(profile, m, quant_mode_c, core_num)
++    program = _get_native_program(dispatch_profile, quant_mode_c, float(norm_eps))
+     program(
+         qa_raw,
+         kva_raw,
+@@ -3631,6 +4062,11 @@
+ def _compile_o11_native_variant(tile_m, quant_mode_c, norm_eps=1.0e-6):
+     """Compile a T interval; hardware/stream core count is a runtime scalar."""
+ 
++    special = tile_m == 2048
++    if special and quant_mode_c != 1:
++        raise ValueError("T2048 specialization only supports FP8 output")
++    if special:
++        tile_m = 0  # Keep the tested dynamic tensor descriptors unchanged.
+     lower, upper = _native_token_bounds(tile_m)
+     kwargs = {"min": lower}
+     if upper is not None:
+@@ -3651,6 +4087,8 @@
+         if tile_m == 0
+         else _MlaRuntimeLauncher(tile_m, float(norm_eps), quant_mode_c)
+     )
++    if special:
++        launcher = _MlaRuntimePrefillLauncherT2048(float(norm_eps), quant_mode_c)
+     return cannbotdsl.compile(
+         launcher.run,
+         spec((capacity, Q_LORA), dtypes.float32),

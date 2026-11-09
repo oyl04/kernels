@@ -1,0 +1,49 @@
+[INFO] Start profiling....
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+DEVICE_MEMORY free=97739214848 total=98515812352
+T2048 golden and recovery passed; 30 measured invocations
+PEAK_TORCH_BYTES 519084544
+[INFO] Start export data in PROF_000001_20261109073614010_00043600ERJGKNEE.
+Mon 09 Nov 2026 07:37:04 [WARNING] [MSVP] [65549] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65549] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_common.py: Start analyzing data in "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/host" ...
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_common.py: It may take few minutes, please be patient ...
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_common.py: Analysis data in "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/host" finished.
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_common.py: Start analyzing data in "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0" ...
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_common.py: It may take few minutes, please be patient ...
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_common.py: Analysis data in "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0" finished.
+Mon 09 Nov 2026 07:37:04 [INFO] [MSVP] [65551] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0.
+2026-11-09 07:37:04 [INFO] [65656] export_manager.cpp: Start to load data!
+2026-11-09 07:37:04 [INFO] [65656] export_manager.cpp: The report parameter is not used.
+2026-11-09 07:37:04 [INFO] [65656] timeline_manager.cpp: Start exporting the timeline!
+2026-11-09 07:37:04 [INFO] [65656] timeline_manager.cpp: End exporting timeline output_file. The file is stored in the PROF file.
+2026-11-09 07:37:04 [INFO] [65656] db_assembler.cpp: End exporting db output_file. The file is stored in the PROF file.
+Mon 09 Nov 2026 07:37:05 [WARNING] [MSVP] [65667] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65667] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_export.py: The data in "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/host" has been analyzed. Parsing phase will be skipped.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_export.py: The data in "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0" has been analyzed. Parsing phase will be skipped.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_export.py: There is no summary data to export for "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/host"
+2026-11-09 07:37:05 [INFO] [65684] export_manager.cpp: Start to load data!
+2026-11-09 07:37:05 [INFO] [65684] export_manager.cpp: The report parameter is not used.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_export.py: There is no summary data to export for "/workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/device_0"
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_common.py: Start exporting summary output_file.
+Mon 09 Nov 2026 07:37:05 [INFO] [MSVP] [65669] msprof_common.py: End exporting summary output_file.The file is stored in the /workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE/mindstudio_profiler_output path.
+[INFO] Export all data in PROF_000001_20261109073614010_00043600ERJGKNEE done.
+[INFO] Start query data in PROF_000001_20261109073614010_00043600ERJGKNEE.
+Mon 09 Nov 2026 07:37:06 [WARNING] [MSVP] [65702] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Job Info	Device ID	Dir Name	Collection Time           	Model ID	Iteration Number	Top Time Iteration	Rank ID	
+
+NA      	         	host    	2026-11-09 07:36:14.931963	N/A     	N/A             	N/A               	-1     	
+
+NA      	0        	device_0	2026-11-09 07:36:14.933237	N/A     	N/A             	N/A               	-1     	
+
+[INFO] Query all data in PROF_000001_20261109073614010_00043600ERJGKNEE done.
+[INFO] Profiling finished.
+[INFO] Process profiling data complete. Data is saved in /workspace/qbatch-shared.IiqKNY/wkbhalfshared-repeat/PROF_000001_20261109073614010_00043600ERJGKNEE

@@ -1,0 +1,47 @@
+[INFO] Start profiling....
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+T2048 golden and recovery passed; 30 measured invocations
+[INFO] Start export data in PROF_000001_20261108130636474_00016024BFRJDNHP.
+Sun 08 Nov 2026 13:07:12 [WARNING] [MSVP] [31555] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Sun 08 Nov 2026 13:07:12 [INFO] [MSVP] [31555] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Sun 08 Nov 2026 13:07:12 [INFO] [MSVP] [31557] msprof_common.py: Start analyzing data in "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/host" ...
+Sun 08 Nov 2026 13:07:12 [INFO] [MSVP] [31557] msprof_common.py: It may take few minutes, please be patient ...
+Sun 08 Nov 2026 13:07:12 [INFO] [MSVP] [31557] msprof_common.py: Analysis data in "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/host" finished.
+Sun 08 Nov 2026 13:07:12 [INFO] [MSVP] [31557] msprof_common.py: Start analyzing data in "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0" ...
+Sun 08 Nov 2026 13:07:12 [INFO] [MSVP] [31557] msprof_common.py: It may take few minutes, please be patient ...
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31557] msprof_common.py: Analysis data in "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0" finished.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31557] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0.
+2026-11-08 13:07:13 [INFO] [31662] export_manager.cpp: Start to load data!
+2026-11-08 13:07:13 [INFO] [31662] export_manager.cpp: The report parameter is not used.
+2026-11-08 13:07:13 [INFO] [31662] timeline_manager.cpp: Start exporting the timeline!
+2026-11-08 13:07:13 [INFO] [31662] timeline_manager.cpp: End exporting timeline output_file. The file is stored in the PROF file.
+2026-11-08 13:07:13 [INFO] [31662] db_assembler.cpp: End exporting db output_file. The file is stored in the PROF file.
+Sun 08 Nov 2026 13:07:13 [WARNING] [MSVP] [31673] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31673] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_export.py: The data in "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/host" has been analyzed. Parsing phase will be skipped.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_export.py: The data in "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0" has been analyzed. Parsing phase will be skipped.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_export.py: There is no summary data to export for "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/host"
+2026-11-08 13:07:13 [INFO] [31690] export_manager.cpp: Start to load data!
+2026-11-08 13:07:13 [INFO] [31690] export_manager.cpp: The report parameter is not used.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0.
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_export.py: There is no summary data to export for "/workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/device_0"
+Sun 08 Nov 2026 13:07:13 [INFO] [MSVP] [31675] msprof_common.py: Start exporting summary output_file.
+Sun 08 Nov 2026 13:07:14 [INFO] [MSVP] [31675] msprof_common.py: End exporting summary output_file.The file is stored in the /workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP/mindstudio_profiler_output path.
+[INFO] Export all data in PROF_000001_20261108130636474_00016024BFRJDNHP done.
+[INFO] Start query data in PROF_000001_20261108130636474_00016024BFRJDNHP.
+Sun 08 Nov 2026 13:07:14 [WARNING] [MSVP] [31708] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Job Info	Device ID	Dir Name	Collection Time           	Model ID	Iteration Number	Top Time Iteration	Rank ID	
+
+NA      	         	host    	2026-11-08 13:06:37.919908	N/A     	N/A             	N/A               	-1     	
+
+NA      	0        	device_0	2026-11-08 13:06:37.921069	N/A     	N/A             	N/A               	-1     	
+
+[INFO] Query all data in PROF_000001_20261108130636474_00016024BFRJDNHP done.
+[INFO] Profiling finished.
+[INFO] Process profiling data complete. Data is saved in /workspace/msprof-2048-continue.OSLNiG/reuse-b-repeat/PROF_000001_20261108130636474_00016024BFRJDNHP

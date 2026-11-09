@@ -1,0 +1,155 @@
+--- a/samples/quant_mla_prolog/quant_mla_prolog.py
++++ b/samples/quant_mla_prolog/quant_mla_prolog.py
+@@ -263,7 +263,6 @@
+             MemLoc.UB, (FEATURES // 32, 32), Float8E4M3FN, depth=output_depth
+         )
+         self.scale_ub = Buffer(MemLoc.UB, (1, 8), dtypes.float32)
+-        self.scalar_ub = Buffer(MemLoc.UB, (1, 8), dtypes.float32)
+ 
+     @jit
+     def __call__(
+@@ -314,9 +313,7 @@
+                 mask=scalar,
+             )
+             inv_rms = vdiv(vdups(1.0, dtypes.float32, mask=scalar), root, mask=scalar)
+-            vstore_first(self.scalar_ub, 0, inv_rms)
+-            vmem_bar(mode="vst_vld")
+-            inv_rms_vector = vload_broadcast(self.scalar_ub, 0)
++            inv_rms_vector = vdup(inv_rms, mask=full)
+             kv_scale = vload_broadcast(self.scale_ub, 0)
+             for segment in range_constexpr(KV_LORA // 64):
+                 value = vload(x_row, segment * 64)
+@@ -415,7 +412,6 @@
+             dtypes.bfloat16,
+             depth=output_depth,
+         )
+-        self.scalar_ub = Buffer(MemLoc.UB, (1, 8), dtypes.float32)
+ 
+     @jit
+     def _process_row(self, kva, gamma, cache, cache_index, token):
+@@ -447,9 +443,7 @@
+                 mask=scalar,
+             )
+             inv_rms = vdiv(vdups(1.0, dtypes.float32, mask=scalar), root, mask=scalar)
+-            vstore_first(self.scalar_ub, 0, inv_rms)
+-            vmem_bar(mode="vst_vld")
+-            inv_rms_vector = vload_broadcast(self.scalar_ub, 0)
++            inv_rms_vector = vdup(inv_rms, mask=full)
+             for segment in range_constexpr(KV_LORA // 64):
+                 value = vload(x_row, segment * 64)
+                 gamma_value = vload(gamma, segment * 64)
+@@ -543,7 +537,6 @@
+         self.scale8 = Buffer(MemLoc.UB, (1, 64), dtypes.int8)
+         # vload reads one full 64-lane B32 vector.
+         self.scale32 = Buffer(MemLoc.UB, ((Q_LORA // 64), 64), dtypes.uint32)
+-        self.scalar = Buffer(MemLoc.UB, (1, 8), dtypes.float32)
+ 
+     @jit
+     def process_one(self, qa_raw, gamma, qa_mx, qa_scale_raw, token):
+@@ -570,9 +563,7 @@
+             mean = vmuls(total, 1.0 / Q_LORA, mask=mask1)
+             root = vsqrt(vadds(mean, self.eps, mask=mask1), mask=mask1)
+             inv = vdiv(vdups(1.0, dtypes.float32, mask=mask1), root, mask=mask1)
+-            vstore_first(self.scalar, 0, inv)
+-            vmem_bar(mode="vst_vld")
+-            inv_vec = vload_broadcast(self.scalar, 0)
++            inv_vec = vdup(inv, mask=full)
+ 
+             # Public gamma is FP32, while the AscendC ABI consumes BF16.
+             # The RMS output then crosses CAST_ROUND (ties away) to BF16.
+@@ -722,7 +713,6 @@
+         self.rope_channel = Channel(MemLoc.UB, (8, ROPE), dtypes.bfloat16, depth=2)
+         self.output_channel = Channel(MemLoc.UB, (8, FEATURES), Float8E4M3FN, depth=2)
+         self.scale_channel = Channel(MemLoc.UB, (8, 1), dtypes.float32, depth=2)
+-        self.scalar_ub = Buffer(MemLoc.UB, (8, 8), dtypes.float32)
+ 
+     @jit
+     def __call__(
+@@ -779,7 +769,7 @@
+             full = full_mask()
+             scalar = update_mask(1, elem_bits=32)[0]
+             for row in range_constexpr(8):
+-                absmax = vdups(1.0e-8, dtypes.float32, mask=scalar)
++                lane_max = vdups(1.0e-8, dtypes.float32, mask=full)
+                 for segment in range_constexpr(KV_LORA // 64):
+                     unpacked = vload_unpack(
+                         q_nope_rows,
+@@ -787,27 +777,18 @@
+                         unpack_mode=UnpackMode.B16_TO_B32,
+                     )
+                     value = vcast(unpacked, dtypes.float32, mask=full)
+-                    absmax = vmax(
+-                        absmax,
+-                        vreduce_max(vabs(value, mask=full), mask=full),
+-                        mask=scalar,
+-                    )
++                    lane_max = vmax(lane_max, vabs(value, mask=full), mask=full)
+                 unpacked = vload_unpack(
+                     q_rope_rows,
+                     row * ROPE,
+                     unpack_mode=UnpackMode.B16_TO_B32,
+                 )
+                 value = vcast(unpacked, dtypes.float32, mask=full)
+-                absmax = vmax(
+-                    absmax,
+-                    vreduce_max(vabs(value, mask=full), mask=full),
+-                    mask=scalar,
+-                )
++                lane_max = vmax(lane_max, vabs(value, mask=full), mask=full)
++                absmax = vreduce_max(lane_max, mask=full)
+                 scale = vmuls(absmax, 1.0 / FP8_MAX, mask=scalar)
+-                vstore_first(self.scalar_ub, row * 8, scale)
+                 vstore_first(scales, row, scale)
+-                vmem_bar(mode="vst_vld")
+-                scale_vector = vload_broadcast(self.scalar_ub, row * 8)
++                scale_vector = vdup(scale, mask=full)
+                 for segment in range_constexpr(KV_LORA // 64):
+                     unpacked = vload_unpack(
+                         q_nope_rows,
+@@ -1610,7 +1591,6 @@
+         self.rope_channel = Channel(MemLoc.UB, (4, ROPE), dtypes.bfloat16, depth=2)
+         self.output_channel = Channel(MemLoc.UB, (4, FEATURES), Float8E4M3FN, depth=2)
+         self.scale_channel = Channel(MemLoc.UB, (4, 1), dtypes.float32, depth=2)
+-        self.scalar_ub = Buffer(MemLoc.UB, (4, 8), dtypes.float32)
+ 
+     @jit
+     def process_batch(self, q_nope, q_combined, q_out, descale_q, head, token_batch):
+@@ -1668,10 +1648,8 @@
+                     mask=scalar,
+                 )
+                 scale = vmuls(absmax, 1.0 / FP8_MAX, mask=scalar)
+-                vstore_first(self.scalar_ub, row * 8, scale)
+                 vstore_first(scales, row, scale)
+-                vmem_bar(mode="vst_vld")
+-                scale_vector = vload_broadcast(self.scalar_ub, row * 8)
++                scale_vector = vdup(scale, mask=full)
+                 for segment in range_constexpr(KV_LORA // 64):
+                     unpacked = vload_unpack(
+                         q_nope_rows,
+@@ -2285,7 +2263,7 @@
+ 
+     def __init__(self, cdepth=1, bdepth=1):
+         self.cdepth = cdepth
+-        self.bm = 32
++        self.bm = 64
+         self.a_l1 = Channel(
+             MemLoc.L1, (self.bm, QK_NOPE), dtypes.bfloat16, depth=2, data_format="nz"
+         )
+@@ -2613,7 +2591,7 @@
+                 kva_raw, gamma_kv, cache, cache_index, block, cores
+             )
+         for m_idx in range(capacity // 128):
+-            qb = _MlaPrefillQbUnit(128)
++            qb = _O11QbHeadOwnedMixT128(128, 32)
+             qb.projection_kernel(
+                 tile_slice(q_head, (128, N_HEADS, HEAD_DIM), (m_idx, 0, 0)),
+                 tile_slice(qa_mx.view(dtype=dtypes.int8), (128, Q_LORA), (m_idx, 0)),
+@@ -2622,8 +2600,6 @@
+                 swqb,
+             )
+         cube_sync_all()
+-        cube_sync_block_arrive(_sync_ops.PIPE.FIXPIPE, 1, mode=0)
+-        _sync_ops.cube_sync_block_wait(_sync_ops.PIPE.S, 1, mode=0)
+         cube_sync_notify(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
+         cube_sync_wait(_sync_ops.PIPE.FIXPIPE, _sync_ops.PIPE.MTE2, 0)
+         # Finish KV VECTOR/MTE3 accesses before Q reuses the same UB arena.

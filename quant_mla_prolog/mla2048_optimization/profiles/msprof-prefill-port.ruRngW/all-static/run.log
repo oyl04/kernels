@@ -1,0 +1,103 @@
+[INFO] Start profiling....
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+Traceback (most recent call last):
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/compiler/passes.py", line 77, in _run_cannir_passes
+    pmgr.run(module.operation)
+cannbotdsl._mlir._mlir_libs._site_initialize.<locals>.MLIRError: Failure while executing pass pipeline:
+error: unknown: 'cannir.onchip_alloc' op L1 allocation exceeds the 524288-byte capacity (end=536576)
+ note: unknown: see current operation: %18178 = "cannir.onchip_alloc"(%18174) {cannir.infer_physical_layout} : (!cannir.layout<<(224, 64)>, <(64, 1)>>) -> !cannir.tensor<<l1, !cannir.fp8_e8m0>, <<(224, 64)>, <(64, 1)>>, <<(4, 112, 16, 2)>, <(3584, 32, 2, 1)>>, nd2nz>
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/bench_mla_2048.py", line 24, in <module>
+    test(case_id,2048)
+  File "/tmp/mla2048.XWHJ1e/test/quant_mla_prolog/test_quant_mla_prolog.py", line 149, in test_network_mxfp8_precision
+    actual, captured = _capture_c1_kernel(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/test/quant_mla_prolog/test_quant_mla_prolog.py", line 78, in _capture_c1_kernel
+    outputs = public_call()
+              ^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/test/quant_mla_prolog/test_quant_mla_prolog.py", line 150, in <lambda>
+    lambda: public_module.quant_mla_prolog(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/samples/quant_mla_prolog/quant_mla_prolog.py", line 3208, in quant_mla_prolog
+    q_out, descale_q = _run_o11_single_launch(
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/samples/quant_mla_prolog/quant_mla_prolog.py", line 2946, in _run_o11_single_launch
+    program = _get_native_program(profile, quant_mode_c, float(norm_eps))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/test/quant_mla_prolog/test_quant_mla_prolog.py", line 69, in capture_program
+    program = getter(*args)
+              ^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/samples/quant_mla_prolog/quant_mla_prolog.py", line 3809, in _get_native_program
+    return _compile_o11_native_variant(tile_m, quant_mode_c, norm_eps)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mla2048.XWHJ1e/samples/quant_mla_prolog/quant_mla_prolog.py", line 3775, in _compile_o11_native_variant
+    return cannbotdsl.compile(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/aot/compiler.py", line 51, in compile
+    artifact = compile_to_artifact(
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/compiler/native_hooks.py", line 38, in dispatch
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/aot/runtime.py", line 358, in wrapped
+    artifact = function(fn, call_args, call_kwargs, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/compiler/builder.py", line 422, in compile_to_artifact
+    _run_cannir_passes(module)
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/utils/timer.py", line 45, in wrapper
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/compiler/passes.py", line 81, in _run_cannir_passes
+    raise RuntimeError(f"Failed to run pass pipeline '{pipeline}': {e}") from e
+RuntimeError: Failed to run pass pipeline 'builtin.module(func.func(cannir-normalize-channel-state),func.func(cannir-normalize-reinterpret),func.func(cannir-plan-onchip-memory),cse,cannir-simplify-layout,func.func(cannir-infer-layout),decompose-mem-copy,func.func(cannir-validate-formatted-gm-uses),cannir-form-vf-regions,func.func(cannir-normalize-reinterpret),func.func(cannir-lower-ub-copy),func.func(cannir-expand-buffer-accesses),func.func(canonicalize),func.func(cannir-refresh-vf-effects),func.func(cannir-auto-buffer-sync{optimize-read-sharing=true}),cannir-allocate-local-events,func.func(cannir-optimize-buffer-sync),func.func(cannir-eliminate-buffer-sync),func.func(cannir-allocate-buffer-ids),func.func(cannir-allocate-sync-ids),convert-cannir-to-asc,asccube-plan-state,split-mix-kernel,ascvec-legalize-two-address,convert-cannir-host-ops,cannir-verify-target-buffer-sync)': Failure while executing pass pipeline:
+error: unknown: 'cannir.onchip_alloc' op L1 allocation exceeds the 524288-byte capacity (end=536576)
+ note: unknown: see current operation: %18178 = "cannir.onchip_alloc"(%18174) {cannir.infer_physical_layout} : (!cannir.layout<<(224, 64)>, <(64, 1)>>) -> !cannir.tensor<<l1, !cannir.fp8_e8m0>, <<(224, 64)>, <(64, 1)>>, <<(4, 112, 16, 2)>, <(3584, 32, 2, 1)>>, nd2nz>
+[ERROR] 2026-11-06-07:51:25 (PID:68, Device:0, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[WARNING] An exception has occurred in process App, return code: Operation not permitted.
+[INFO] Start export data in PROF_000001_20261106075117707_00000068EHGHCAEP.
+Fri 06 Nov 2026 07:51:28 [WARNING] [MSVP] [2899] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2899] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_common.py: Start analyzing data in "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/host" ...
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_common.py: It may take few minutes, please be patient ...
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_common.py: Analysis data in "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/host" finished.
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_common.py: Start analyzing data in "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0" ...
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_common.py: It may take few minutes, please be patient ...
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_common.py: Analysis data in "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0" finished.
+Fri 06 Nov 2026 07:51:28 [INFO] [MSVP] [2901] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0.
+2026-11-06 07:51:29 [INFO] [3006] export_manager.cpp: Start to load data!
+2026-11-06 07:51:29 [INFO] [3006] export_manager.cpp: The report parameter is not used.
+2026-11-06 07:51:29 [INFO] [3006] timeline_manager.cpp: Start exporting the timeline!
+2026-11-06 07:51:29 [INFO] [3006] timeline_manager.cpp: End exporting timeline output_file. The file is stored in the PROF file.
+2026-11-06 07:51:29 [INFO] [3006] db_assembler.cpp: End exporting db output_file. The file is stored in the PROF file.
+Fri 06 Nov 2026 07:51:29 [WARNING] [MSVP] [3017] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3017] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_export.py: The data in "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/host" has been analyzed. Parsing phase will be skipped.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_export.py: The data in "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0" has been analyzed. Parsing phase will be skipped.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_export.py: There is no summary data to export for "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/host"
+2026-11-06 07:51:29 [INFO] [3034] export_manager.cpp: Start to load data!
+2026-11-06 07:51:29 [INFO] [3034] export_manager.cpp: The report parameter is not used.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_export.py: There is no summary data to export for "/workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/device_0"
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_common.py: Start exporting summary output_file.
+Fri 06 Nov 2026 07:51:29 [INFO] [MSVP] [3019] msprof_common.py: End exporting summary output_file.The file is stored in the /workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP/mindstudio_profiler_output path.
+[INFO] Export all data in PROF_000001_20261106075117707_00000068EHGHCAEP done.
+[INFO] Start query data in PROF_000001_20261106075117707_00000068EHGHCAEP.
+Fri 06 Nov 2026 07:51:30 [WARNING] [MSVP] [3052] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Job Info	Device ID	Dir Name	Collection Time           	Model ID	Iteration Number	Top Time Iteration	Rank ID	
+
+NA      	         	host    	2026-11-06 07:51:18.629179	N/A     	N/A             	N/A               	-1     	
+
+NA      	0        	device_0	2026-11-06 07:51:18.630319	N/A     	N/A             	N/A               	-1     	
+
+[INFO] Query all data in PROF_000001_20261106075117707_00000068EHGHCAEP done.
+[INFO] Profiling finished.
+[INFO] Process profiling data complete. Data is saved in /workspace/msprof-prefill-port.ruRngW/all-static/PROF_000001_20261106075117707_00000068EHGHCAEP

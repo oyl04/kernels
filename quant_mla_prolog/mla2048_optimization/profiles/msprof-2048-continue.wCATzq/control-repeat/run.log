@@ -1,0 +1,45 @@
+[INFO] Start profiling....
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+[WARNING] An exception has occurred in process App, return code: Bad file descriptor.
+[INFO] Start export data in PROF_000001_20261108130407408_00047007HCPFCBFA.
+Sun 08 Nov 2026 13:04:16 [WARNING] [MSVP] [50868] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Sun 08 Nov 2026 13:04:16 [INFO] [MSVP] [50868] msprof_cpp_pipeline.py: Full C pipeline is unavailable (RAW_DATA_MISSING,CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Sun 08 Nov 2026 13:04:16 [INFO] [MSVP] [50870] msprof_common.py: Start analyzing data in "/workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/host" ...
+Sun 08 Nov 2026 13:04:16 [INFO] [MSVP] [50870] msprof_common.py: It may take few minutes, please be patient ...
+Sun 08 Nov 2026 13:04:16 [INFO] [MSVP] [50870] msprof_common.py: Analysis data in "/workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/host" finished.
+Sun 08 Nov 2026 13:04:16 [WARNING] [MSVP] [50870] msprof_common.py: There is no file in /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/device_0/data. Collect data failed. More info could be found in the path of slog on your core.
+Sun 08 Nov 2026 13:04:16 [INFO] [MSVP] [50870] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/device_0.
+2026-11-08 13:04:16 [INFO] [50940] export_manager.cpp: Start to load data!
+2026-11-08 13:04:16 [INFO] [50940] export_manager.cpp: The report parameter is not used.
+2026-11-08 13:04:16 [INFO] [50940] timeline_manager.cpp: Start exporting the timeline!
+2026-11-08 13:04:16 [INFO] [50940] timeline_manager.cpp: End exporting timeline output_file. The file is stored in the PROF file.
+2026-11-08 13:04:16 [INFO] [50940] db_assembler.cpp: End exporting db output_file. The file is stored in the PROF file.
+Sun 08 Nov 2026 13:04:17 [WARNING] [MSVP] [50951] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50951] msprof_cpp_pipeline.py: Full C pipeline is unavailable (RAW_DATA_MISSING,CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_export.py: The data in "/workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/host" has been analyzed. Parsing phase will be skipped.
+Sun 08 Nov 2026 13:04:17 [WARNING] [MSVP] [50953] msprof_common.py: There is no file in /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/device_0/data. Collect data failed. More info could be found in the path of slog on your core.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/device_0.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_export.py: There is no summary data to export for "/workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/host"
+2026-11-08 13:04:17 [INFO] [50955] export_manager.cpp: Start to load data!
+2026-11-08 13:04:17 [INFO] [50955] export_manager.cpp: The report parameter is not used.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_export.py: All collected data will be exported, path is: /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/device_0.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_export.py: There is no summary data to export for "/workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/device_0"
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_common.py: Start exporting summary output_file.
+Sun 08 Nov 2026 13:04:17 [INFO] [MSVP] [50953] msprof_common.py: End exporting summary output_file.The file is stored in the /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA/mindstudio_profiler_output path.
+[INFO] Export all data in PROF_000001_20261108130407408_00047007HCPFCBFA done.
+[INFO] Start query data in PROF_000001_20261108130407408_00047007HCPFCBFA.
+Sun 08 Nov 2026 13:04:18 [WARNING] [MSVP] [50973] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Job Info	Device ID	Dir Name	Collection Time           	Model ID	Iteration Number	Top Time Iteration	Rank ID	
+
+NA      	         	host    	2026-11-08 13:04:10.977014	N/A     	N/A             	N/A               	-1     	
+
+NA      	0        	device_0	2026-11-08 13:04:10.978200	N/A     	N/A             	N/A               	-1     	
+
+[INFO] Query all data in PROF_000001_20261108130407408_00047007HCPFCBFA done.
+[INFO] Profiling finished.
+[INFO] Process profiling data complete. Data is saved in /workspace/msprof-2048-continue.wCATzq/control-repeat/PROF_000001_20261108130407408_00047007HCPFCBFA

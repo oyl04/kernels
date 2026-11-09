@@ -1,0 +1,100 @@
+[INFO] Start profiling....
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+DEVICE_MEMORY free=97738907648 total=98515812352
+Traceback (most recent call last):
+  File "/workspace/mla2048_shared_probe.py", line 14, in <module>
+    runpy.run_path('/workspace/bench_mla_2048.py', run_name='__main__')
+  File "<frozen runpy>", line 287, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/bench_mla_2048.py", line 24, in <module>
+    test(case_id,2048)
+  File "/tmp/qbatch-shared.xjYPs0/test/quant_mla_prolog/test_quant_mla_prolog.py", line 149, in test_network_mxfp8_precision
+    actual, captured = _capture_c1_kernel(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/test/quant_mla_prolog/test_quant_mla_prolog.py", line 78, in _capture_c1_kernel
+    outputs = public_call()
+              ^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/test/quant_mla_prolog/test_quant_mla_prolog.py", line 150, in <lambda>
+    lambda: public_module.quant_mla_prolog(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/samples/quant_mla_prolog/quant_mla_prolog.py", line 3517, in quant_mla_prolog
+    q_out, descale_q = _run_o11_single_launch(
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/samples/quant_mla_prolog/quant_mla_prolog.py", line 3255, in _run_o11_single_launch
+    program = _get_native_program(dispatch_profile, quant_mode_c, float(norm_eps))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/test/quant_mla_prolog/test_quant_mla_prolog.py", line 69, in capture_program
+    program = getter(*args)
+              ^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/samples/quant_mla_prolog/quant_mla_prolog.py", line 4125, in _get_native_program
+    return _compile_o11_native_variant(tile_m, quant_mode_c, norm_eps)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/samples/quant_mla_prolog/quant_mla_prolog.py", line 4091, in _compile_o11_native_variant
+    return cannbotdsl.compile(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/aot/compiler.py", line 51, in compile
+    artifact = compile_to_artifact(
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/compiler/native_hooks.py", line 38, in dispatch
+    return wrapped(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/aot/runtime.py", line 358, in wrapped
+    artifact = function(fn, call_args, call_kwargs, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/compiler/builder.py", line 268, in compile_to_artifact
+    result = ir_builder(*ir_args, **ir_kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/qbatch-shared.xjYPs0/samples/quant_mla_prolog/quant_mla_prolog.py", line 3109, in run
+    _MlaRuntimePrefillKernelT2048(self.norm_eps, self.quant_mode_c)[core_num](
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python3.12.13/lib/python3.12/site-packages/cannbotdsl/core/frontend/runtime/expressions.py", line 432, in dynamic_getitem
+    return container[key]
+           ~~~~~~~~~^^^^^
+TypeError: '_MlaRuntimePrefillKernelT2048' object is not subscriptable
+[ERROR] 2026-11-09-07:42:30 (PID:18203, Device:0, RankID:-1) ERR99999 UNKNOWN applicaiton exception
+[WARNING] An exception has occurred in process App, return code: Operation not permitted.
+[INFO] Start export data in PROF_000001_20261109074223569_00018203HFNJHCHM.
+Mon 09 Nov 2026 07:42:32 [WARNING] [MSVP] [20620] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20620] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_common.py: Start analyzing data in "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/host" ...
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_common.py: It may take few minutes, please be patient ...
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_common.py: Analysis data in "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/host" finished.
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_common.py: Start analyzing data in "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0" ...
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_common.py: It may take few minutes, please be patient ...
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_common.py: Analysis data in "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0" finished.
+Mon 09 Nov 2026 07:42:32 [INFO] [MSVP] [20622] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0.
+2026-11-09 07:42:32 [INFO] [20727] export_manager.cpp: Start to load data!
+2026-11-09 07:42:32 [INFO] [20727] export_manager.cpp: The report parameter is not used.
+2026-11-09 07:42:32 [INFO] [20727] timeline_manager.cpp: Start exporting the timeline!
+2026-11-09 07:42:32 [INFO] [20727] timeline_manager.cpp: End exporting timeline output_file. The file is stored in the PROF file.
+2026-11-09 07:42:32 [INFO] [20727] db_assembler.cpp: End exporting db output_file. The file is stored in the PROF file.
+Mon 09 Nov 2026 07:42:33 [WARNING] [MSVP] [20738] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20738] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_export.py: The data in "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/host" has been analyzed. Parsing phase will be skipped.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_export.py: The data in "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0" has been analyzed. Parsing phase will be skipped.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_export.py: There is no summary data to export for "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/host"
+2026-11-09 07:42:33 [INFO] [20755] export_manager.cpp: Start to load data!
+2026-11-09 07:42:33 [INFO] [20755] export_manager.cpp: The report parameter is not used.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_export.py: There is no summary data to export for "/workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/device_0"
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_common.py: Start exporting summary output_file.
+Mon 09 Nov 2026 07:42:33 [INFO] [MSVP] [20740] msprof_common.py: End exporting summary output_file.The file is stored in the /workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM/mindstudio_profiler_output path.
+[INFO] Export all data in PROF_000001_20261109074223569_00018203HFNJHCHM done.
+[INFO] Start query data in PROF_000001_20261109074223569_00018203HFNJHCHM.
+Mon 09 Nov 2026 07:42:34 [WARNING] [MSVP] [20773] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Job Info	Device ID	Dir Name	Collection Time           	Model ID	Iteration Number	Top Time Iteration	Rank ID	
+
+NA      	         	host    	2026-11-09 07:42:24.384451	N/A     	N/A             	N/A               	-1     	
+
+NA      	0        	device_0	2026-11-09 07:42:24.385663	N/A     	N/A             	N/A               	-1     	
+
+[INFO] Query all data in PROF_000001_20261109074223569_00018203HFNJHCHM done.
+[INFO] Profiling finished.
+[INFO] Process profiling data complete. Data is saved in /workspace/qbatch-shared.I1B4Au/wkbquartersgated/PROF_000001_20261109074223569_00018203HFNJHCHM

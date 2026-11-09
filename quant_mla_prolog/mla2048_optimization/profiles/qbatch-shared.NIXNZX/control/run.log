@@ -1,0 +1,49 @@
+[INFO] Start profiling....
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:13: FutureWarning: triton.language.extra.cann.extension.atan2 is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.atan2 instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.atan2")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:35: FutureWarning: triton.language.extra.cann.extension.isfinited is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.isfinited instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.isfinited")
+/usr/local/python3.12.13/lib/python3.12/site-packages/triton/language/extra/cann/extension/math_ops.py:49: FutureWarning: triton.language.extra.cann.extension.finitef is deprecated and will be removed in the next release; use triton.language.extra.cann.libdevice.finitef instead.
+  @_deprecated(replacement="triton.language.extra.cann.libdevice.finitef")
+DEVICE_MEMORY free=3892097024 total=98515812352
+T2048 golden and recovery passed; 30 measured invocations
+PEAK_TORCH_BYTES 519084544
+[INFO] Start export data in PROF_000001_20261108220426539_00018689QDDCRHMQ.
+Sun 08 Nov 2026 22:05:07 [WARNING] [MSVP] [36253] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36253] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_common.py: Start analyzing data in "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/host" ...
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_common.py: It may take few minutes, please be patient ...
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_common.py: Analysis data in "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/host" finished.
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_common.py: Start analyzing data in "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0" ...
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_common.py: It may take few minutes, please be patient ...
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_common.py: Analysis data in "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0" finished.
+Sun 08 Nov 2026 22:05:07 [INFO] [MSVP] [36255] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0.
+2026-11-08 22:05:08 [INFO] [36360] export_manager.cpp: Start to load data!
+2026-11-08 22:05:08 [INFO] [36360] export_manager.cpp: The report parameter is not used.
+2026-11-08 22:05:08 [INFO] [36360] timeline_manager.cpp: Start exporting the timeline!
+2026-11-08 22:05:08 [INFO] [36360] timeline_manager.cpp: End exporting timeline output_file. The file is stored in the PROF file.
+2026-11-08 22:05:08 [INFO] [36360] db_assembler.cpp: End exporting db output_file. The file is stored in the PROF file.
+Sun 08 Nov 2026 22:05:08 [WARNING] [MSVP] [36371] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36371] msprof_cpp_pipeline.py: Full C pipeline is unavailable (CHIP_UNSUPPORTED,CHIP_UNSUPPORTED); fall back to the existing flow.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_export.py: The data in "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/host" has been analyzed. Parsing phase will be skipped.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_export.py: The data in "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0" has been analyzed. Parsing phase will be skipped.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_export.py: There is no summary data to export for "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/host"
+2026-11-08 22:05:08 [INFO] [36388] export_manager.cpp: Start to load data!
+2026-11-08 22:05:08 [INFO] [36388] export_manager.cpp: The report parameter is not used.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_export.py: All collected data will be exported, path is: /workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_export.py: There is no summary data to export for "/workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/device_0"
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_common.py: Start exporting summary output_file.
+Sun 08 Nov 2026 22:05:08 [INFO] [MSVP] [36373] msprof_common.py: End exporting summary output_file.The file is stored in the /workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ/mindstudio_profiler_output path.
+[INFO] Export all data in PROF_000001_20261108220426539_00018689QDDCRHMQ done.
+[INFO] Start query data in PROF_000001_20261108220426539_00018689QDDCRHMQ.
+Sun 08 Nov 2026 22:05:09 [WARNING] [MSVP] [36406] msprof_entrance.py: Msprof analysis is parsing data as root, which may cause potential system security risks.
+Job Info	Device ID	Dir Name	Collection Time           	Model ID	Iteration Number	Top Time Iteration	Rank ID	
+
+NA      	         	host    	2026-11-08 22:04:27.398594	N/A     	N/A             	N/A               	-1     	
+
+NA      	0        	device_0	2026-11-08 22:04:27.399882	N/A     	N/A             	N/A               	-1     	
+
+[INFO] Query all data in PROF_000001_20261108220426539_00018689QDDCRHMQ done.
+[INFO] Profiling finished.
+[INFO] Process profiling data complete. Data is saved in /workspace/qbatch-shared.NIXNZX/control/PROF_000001_20261108220426539_00018689QDDCRHMQ
